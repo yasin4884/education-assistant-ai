@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 
 # ==================== تنظیمات کلی ====================
 
-API_KEY = "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"
+API_KEY = ""
 OPENROUTER_ENDPOINT = "https://openrouter.ai/api/v1/chat/completions"
 
 # می‌توانی برای چت/QA و خلاصه‌سازی مدل‌های مختلف بگذاری
@@ -262,3 +262,4 @@ if __name__ == "__main__":
     print("خلاصه:", s)
 
     manager.cleanup()
+
