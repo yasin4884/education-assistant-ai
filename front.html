@@ -1,0 +1,1569 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <title>Student Assistant | دستیار هوشمند دانشجو</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg-main:#f3f4ff;
+      --fg-main:#020617;
+      --fg-muted:#6b7280;
+      --accent:#2563eb;
+      --accent-soft:rgba(37,99,235,0.15);
+      --border-soft:rgba(148,163,184,0.35);
+      --radius-xl:32px;
+      --radius-lg:22px;
+      --radius-md:12px;
+      --shadow-soft:0 22px 70px rgba(15,23,42,0.18);
+      --shadow-strong:0 40px 120px rgba(15,23,42,0.32);
+      --transition-fast:0.18s ease-out;
+      --transition-med:0.32s ease-out;
+      color-scheme:light;
+    }
+    html[data-theme="dark"]{
+      --bg-main:#020617;
+      --fg-main:#f9fafb;
+      --fg-muted:#9ca3af;
+      --accent:#38bdf8;
+      --accent-soft:rgba(56,189,248,0.2);
+      --border-soft:rgba(148,163,184,0.55);
+      --shadow-soft:0 30px 90px rgba(0,0,0,0.85);
+      --shadow-strong:0 46px 130px rgba(0,0,0,0.95);
+      color-scheme:dark;
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:"Vazirmatn",system-ui,-apple-system,"Segoe UI",sans-serif;
+      min-height:100vh;
+      background:var(--bg-main);
+      color:var(--fg-main);
+      overflow-x:hidden;
+    }
+
+    .bg-base{
+      position:fixed;
+      inset:-20%;
+      background:
+        radial-gradient(circle at 0% 80%,rgba(249,115,22,0.55) 0,transparent 55%),
+        radial-gradient(circle at 0% 0%,rgba(244,114,182,0.6) 0,transparent 55%),
+        radial-gradient(circle at 100% 10%,rgba(96,165,250,0.6) 0,transparent 55%),
+        radial-gradient(circle at 100% 100%,rgba(45,212,191,0.55) 0,transparent 55%),
+        #f9fafb;
+      z-index:-3;
+      filter:blur(4px);
+    }
+    .bg-blur-circle{
+      position:fixed;
+      width:520px;
+      height:520px;
+      border-radius:50%;
+      left:50%;
+      top:54%;
+      transform:translate(-5%,-50%);
+      background:
+        radial-gradient(circle at 30% 0%,rgba(59,130,246,0.7) 0,transparent 55%),
+        radial-gradient(circle at 70% 80%,rgba(244,114,182,0.8) 0,transparent 60%);
+      opacity:0.9;
+      filter:blur(8px);
+      z-index:-2;
+      animation:circleFloat 26s ease-in-out infinite alternate;
+    }
+    html[data-theme="dark"] .bg-base{
+      background:
+        radial-gradient(circle at 0% 80%,rgba(249,115,22,0.6) 0,transparent 55%),
+        radial-gradient(circle at 0% 0%,rgba(244,114,182,0.65) 0,transparent 55%),
+        radial-gradient(circle at 100% 10%,rgba(96,165,250,0.7) 0,transparent 55%),
+        radial-gradient(circle at 100% 100%,rgba(45,212,191,0.6) 0,transparent 55%),
+        #020617;
+    }
+    html[data-theme="dark"] .bg-blur-circle{
+      opacity:0.75;
+    }
+    @keyframes circleFloat{
+      0%{transform:translate(-5%,-50%) scale(1)}
+      50%{transform:translate(-2%,-53%) scale(1.03)}
+      100%{transform:translate(-8%,-47%) scale(1.02)}
+    }
+
+    .shell{
+      max-width:1200px;
+      margin:0 auto;
+      padding:22px clamp(16px,5vw,40px) 32px;
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+      opacity:0;
+      transform:translateY(16px);
+      animation:pageIn 0.7s var(--transition-med) forwards;
+    }
+    @keyframes pageIn{to{opacity:1;transform:translateY(0)}}
+
+    .header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:18px;
+      margin-bottom:26px;
+    }
+    .logo-row{display:flex;align-items:center;gap:10px}
+    .logo-icon{
+      width:42px;height:42px;border-radius:18px;
+      background:rgba(255,255,255,0.7);
+      border:1px solid rgba(255,255,255,0.95);
+      backdrop-filter:blur(18px);
+      -webkit-backdrop-filter:blur(18px);
+      display:flex;align-items:center;justify-content:center;
+      color:var(--fg-main);
+      font-weight:700;
+      letter-spacing:-0.08em;
+      box-shadow:0 18px 40px rgba(15,23,42,0.25);
+    }
+    html[data-theme="dark"] .logo-icon{
+      background:rgba(15,23,42,0.9);
+      border-color:rgba(148,163,184,0.9);
+      color:#e5e7eb;
+    }
+    .logo-text{font-size:1.02rem;font-weight:600;letter-spacing:-0.03em}
+    .logo-sub{font-size:0.75rem;color:var(--fg-muted)}
+
+    .nav{
+      display:flex;align-items:center;gap:20px;
+      font-size:0.82rem;color:var(--fg-muted);
+    }
+    .nav-link{
+      cursor:pointer;position:relative;padding-bottom:2px;
+      transition:color var(--transition-fast);
+    }
+    .nav-link:hover{color:var(--accent)}
+    .nav-link.active{color:var(--accent)}
+    .nav-link.active::after{
+      content:"";position:absolute;right:0;bottom:-3px;
+      width:18px;height:2px;border-radius:999px;
+      background:var(--accent);
+    }
+
+    .header-right{display:flex;align-items:center;gap:10px}
+    .status-pill{
+      font-size:0.78rem;padding:4px 10px;border-radius:999px;
+      border:1px solid rgba(148,163,184,0.55);
+      background:rgba(255,255,255,0.85);
+      color:var(--fg-muted);
+      display:inline-flex;align-items:center;gap:6px;
+      backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+    }
+    html[data-theme="dark"] .status-pill{
+      background:rgba(15,23,42,0.92);
+      color:#e5e7eb;
+    }
+    .status-dot{
+      width:8px;height:8px;border-radius:50%;
+      background:#22c55e;
+      box-shadow:0 0 0 4px rgba(34,197,94,0.4);
+    }
+    .status-offline .status-dot{
+      background:#ef4444;
+      box-shadow:0 0 0 4px rgba(248,113,113,0.48);
+    }
+
+    .cta-btn{
+      padding:7px 16px;border-radius:999px;border:none;
+      font-size:0.82rem;font-weight:500;cursor:pointer;
+      background:linear-gradient(135deg,#2563eb,#0ea5e9);
+      color:#f9fafb;
+      box-shadow:0 18px 45px rgba(37,99,235,0.55);
+      transition:transform var(--transition-fast),box-shadow var(--transition-fast);
+    }
+    .cta-btn:hover{
+      transform:translateY(-1px);
+      box-shadow:0 22px 60px rgba(37,99,235,0.75);
+    }
+
+    @media(max-width:900px){
+      .header{flex-direction:column;align-items:flex-start}
+      .nav{order:3}
+      .header-right{align-self:stretch;justify-content:space-between}
+    }
+
+    .view{
+      display:none;
+      opacity:0;
+      transform:translateX(30px);
+      animation-duration:0.45s;
+      animation-fill-mode:forwards;
+      animation-timing-function:var(--transition-med);
+    }
+    .view-active{
+      display:block;
+      animation-name:viewIn;
+    }
+    @keyframes viewIn{
+      from{opacity:0;transform:translateX(30px)}
+      to{opacity:1;transform:translateX(0)}
+    }
+    @keyframes viewOut{
+      from{opacity:1;transform:translateX(0)}
+      to{opacity:0;transform:translateX(-20px)}
+    }
+
+    .hero{
+      display:grid;
+      grid-template-columns:minmax(0,1.1fr) minmax(0,1.4fr);
+      gap:32px;
+      align-items:stretch;
+      margin-top:10px;
+      margin-bottom:30px;
+    }
+    @media(max-width:980px){
+      .hero{grid-template-columns:minmax(0,1fr);gap:24px}
+    }
+    .hero-title{
+      font-size:clamp(2.1rem,3.4vw,2.9rem);
+      font-weight:700;
+      line-height:1.3;
+      letter-spacing:-0.06em;
+      margin-bottom:10px;
+      color:var(--fg-main);
+    }
+    .hero-sub{
+      font-size:0.95rem;
+      color:var(--fg-muted);
+      max-width:480px;
+      margin-bottom:16px;
+    }
+    .hero-actions{
+      display:flex;
+      align-items:center;
+      gap:14px;
+      font-size:0.84rem;
+      flex-wrap:wrap;
+    }
+    .hero-link{
+      cursor:pointer;
+      color:var(--accent);
+    }
+
+    .hero-right{
+      display:flex;
+      align-items:stretch;
+      justify-content:center;
+    }
+
+    .hero-dashboard{
+      position:relative;
+      width:100%;
+      max-width:700px;
+      min-height:410px;
+      border-radius:36px;
+      overflow:hidden;
+      box-shadow:var(--shadow-strong);
+      transform-origin:center;
+      animation:heroFloat 12s ease-in-out infinite alternate;
+    }
+    @keyframes heroFloat{
+      0%{transform:translateY(0) scale(1)}
+      50%{transform:translateY(-12px) scale(1.01)}
+      100%{transform:translateY(0) scale(1)}
+    }
+    .hero-dashboard::after{
+      content:"";
+      position:absolute;
+      inset:18px;
+      border-radius:30px;
+      background:rgba(255,255,255,0.9);
+      border:1px solid rgba(255,255,255,0.97);
+      box-shadow:0 28px 80px rgba(148,163,184,0.7);
+      backdrop-filter:blur(26px);
+      -webkit-backdrop-filter:blur(26px);
+      z-index:1;
+    }
+    html[data-theme="dark"] .hero-dashboard::after{
+      background:rgba(15,23,42,0.92);
+      border-color:rgba(148,163,184,0.95);
+      box-shadow:0 40px 120px rgba(0,0,0,0.98);
+    }
+    .hero-dashboard-inner{
+      position:relative;
+      z-index:2;
+      height:100%;
+    }
+
+    .hero-header-row{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:18px;
+      padding:26px 30px 18px;
+    }
+    .hero-header-title{
+      font-size:1.25rem;
+      font-weight:600;
+      letter-spacing:-0.04em;
+    }
+    .hero-header-sub{
+      margin-top:4px;
+      font-size:0.9rem;
+      color:var(--fg-muted);
+    }
+    .hero-header-pill{
+      font-size:0.8rem;
+      padding:7px 14px;
+      border-radius:999px;
+      background:rgba(148,163,184,0.12);
+      color:var(--fg-main);
+      max-width:250px;
+      text-align:center;
+    }
+    html[data-theme="dark"] .hero-header-pill{
+      background:rgba(148,163,184,0.25);
+      color:#e5e7eb;
+    }
+
+    .hero-stats-row{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:12px;
+      padding:0 26px 18px;
+    }
+    @media(max-width:780px){
+      .hero-stats-row{grid-template-columns:repeat(2,minmax(0,1fr))}
+    }
+    .hero-stat-card{
+      border-radius:22px;
+      padding:12px 12px 10px;
+      background:rgba(255,255,255,0.95);
+      border:1px solid rgba(255,255,255,0.99);
+      box-shadow:0 20px 50px rgba(148,163,184,0.65);
+      backdrop-filter:blur(20px);
+      -webkit-backdrop-filter:blur(20px);
+      font-size:0.84rem;
+    }
+    html[data-theme="dark"] .hero-stat-card{
+      background:rgba(15,23,42,0.96);
+      border-color:rgba(148,163,184,0.96);
+      box-shadow:0 26px 80px rgba(0,0,0,0.98);
+    }
+    .hero-stat-label{
+      font-size:0.8rem;
+      color:var(--fg-muted);
+      margin-bottom:4px;
+    }
+    .hero-stat-value{
+      font-size:1.38rem;
+      font-weight:600;
+      letter-spacing:-0.04em;
+    }
+    .hero-stat-meta{
+      font-size:0.78rem;
+      color:var(--fg-muted);
+      margin-top:2px;
+    }
+
+    .hero-icons-grid{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:12px;
+      padding:0 26px 10px;
+    }
+    @media(max-width:780px){
+      .hero-icons-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    }
+    .big-glass-icon{
+      position:relative;
+      border-radius:24px;
+      padding:14px 12px;
+      background:rgba(255,255,255,0.97);
+      border:1px solid rgba(255,255,255,1);
+      backdrop-filter:blur(22px);
+      -webkit-backdrop-filter:blur(22px);
+      box-shadow:0 22px 60px rgba(148,163,184,0.7);
+      cursor:pointer;
+      overflow:hidden;
+      transition:transform var(--transition-fast),box-shadow var(--transition-fast),background var(--transition-fast);
+    }
+    html[data-theme="dark"] .big-glass-icon{
+      background:rgba(15,23,42,0.97);
+      border-color:rgba(148,163,184,0.98);
+      box-shadow:0 30px 90px rgba(0,0,0,0.98);
+    }
+    .big-glass-icon::after{
+      content:"";
+      position:absolute;
+      inset:-40%;
+      background:radial-gradient(circle at 0 0,rgba(255,255,255,0.7) 0,transparent 55%);
+      opacity:0;
+      transform:translate3d(-20px,0,0);
+      transition:opacity var(--transition-med),transform var(--transition-med);
+    }
+    .big-glass-icon:hover{
+      transform:translateY(-6px) scale(1.02);
+      box-shadow:0 30px 90px rgba(37,99,235,0.62);
+    }
+    .big-glass-icon:hover::after{
+      opacity:1;
+      transform:translate3d(0,0,0);
+    }
+    .big-icon-header{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      margin-bottom:6px;
+    }
+    .big-icon-badge{
+      width:36px;
+      height:36px;
+      border-radius:16px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:1.1rem;
+      color:#f9fafb;
+      box-shadow:0 16px 38px rgba(15,23,42,0.5);
+    }
+    .big-icon-badge.folder{
+      background:linear-gradient(135deg,#38bdf8,#6366f1);
+    }
+    .big-icon-badge.notes{
+      background:linear-gradient(135deg,#f97316,#ec4899);
+    }
+    .big-icon-badge.chat{
+      background:linear-gradient(135deg,#22c55e,#14b8a6);
+    }
+    .big-icon-badge.calc{
+      background:linear-gradient(135deg,#a855f7,#6366f1);
+    }
+    .big-icon-title{
+      font-size:0.88rem;
+      font-weight:500;
+    }
+    .big-icon-sub{
+      font-size:0.78rem;
+      color:var(--fg-muted);
+      margin-top:2px;
+    }
+
+    /* پنل ماشین‌حساب شیشه‌ای */
+    .calc-panel{
+      margin:0 26px 22px;
+      border-radius:24px;
+      padding:14px 14px 12px;
+      background:rgba(255,255,255,0.9);
+      border:1px solid rgba(255,255,255,0.98);
+      box-shadow:0 26px 70px rgba(148,163,184,0.7);
+      backdrop-filter:blur(22px);
+      -webkit-backdrop-filter:blur(22px);
+    }
+    html[data-theme="dark"] .calc-panel{
+      background:rgba(15,23,42,0.96);
+      border-color:rgba(148,163,184,0.96);
+      box-shadow:0 34px 90px rgba(0,0,0,0.98);
+    }
+    .calc-header-row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      font-size:0.8rem;
+      color:var(--fg-muted);
+      margin-bottom:6px;
+    }
+    .calc-close-btn{
+      border:none;
+      background:transparent;
+      color:var(--fg-muted);
+      font-size:1rem;
+      cursor:pointer;
+    }
+    .calc-display{
+      border-radius:18px;
+      padding:8px 12px;
+      margin-bottom:8px;
+      background:rgba(15,23,42,0.96);
+      color:#f9fafb;
+      font-size:1.1rem;
+      text-align:left;
+      direction:ltr;
+      box-shadow:inset 0 0 0 1px rgba(15,23,42,0.4);
+      overflow:hidden;
+      white-space:nowrap;
+      text-overflow:ellipsis;
+    }
+    html[data-theme="dark"] .calc-display{
+      background:rgba(15,23,42,0.98);
+    }
+    .calc-grid{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:6px;
+    }
+    .calc-key{
+      border:none;
+      border-radius:14px;
+      padding:8px 0;
+      font-size:0.9rem;
+      cursor:pointer;
+      background:rgba(248,250,252,0.95);
+      color:var(--fg-main);
+      box-shadow:0 10px 24px rgba(148,163,184,0.5);
+      backdrop-filter:blur(18px);
+      -webkit-backdrop-filter:blur(18px);
+      transition:transform 0.08s ease-out,box-shadow 0.12s ease-out,background 0.12s ease-out;
+    }
+    html[data-theme="dark"] .calc-key{
+      background:rgba(15,23,42,0.98);
+      color:#e5e7eb;
+      box-shadow:0 12px 30px rgba(0,0,0,0.9);
+    }
+    .calc-key:active{
+      transform:translateY(1px);
+      box-shadow:0 6px 16px rgba(148,163,184,0.6);
+    }
+    .calc-key-op{
+      background:linear-gradient(135deg,#2563eb,#0ea5e9);
+      color:#f9fafb;
+    }
+    .calc-key-func{
+      background:rgba(248,250,252,0.9);
+      color:#f97316;
+    }
+    .calc-key-eq{
+      background:linear-gradient(135deg,#22c55e,#16a34a);
+      color:#f9fafb;
+      grid-column:4/5;
+    }
+    .calc-key-zero{
+      grid-column:1/3;
+    }
+
+    .panel{
+      background:rgba(255,255,255,0.95);
+      border-radius:var(--radius-xl);
+      border:1px solid var(--border-soft);
+      box-shadow:var(--shadow-soft);
+      padding:18px 18px 14px;
+      margin-bottom:18px;
+      backdrop-filter:blur(18px);
+      -webkit-backdrop-filter:blur(18px);
+    }
+    html[data-theme="dark"] .panel{
+      background:rgba(15,23,42,0.96);
+    }
+    .section-label{
+      font-size:0.76rem;
+      color:var(--accent);
+      padding:3px 10px;
+      border-radius:999px;
+      background:var(--accent-soft);
+      border:1px solid rgba(148,163,184,0.6);
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      margin-bottom:6px;
+    }
+    .section-dot{
+      width:6px;
+      height:6px;
+      border-radius:50%;
+      background:var(--accent);
+    }
+    .section-title{
+      font-size:1.04rem;
+      font-weight:500;
+      margin-bottom:4px;
+    }
+    .section-sub{
+      font-size:0.8rem;
+      color:var(--fg-muted);
+    }
+    .inline-row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+    .pill-col{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      align-items:flex-end;
+      font-size:0.74rem;
+      color:var(--fg-muted);
+    }
+    .pill-col>div{
+      padding:3px 9px;
+      border-radius:999px;
+      border:1px dashed var(--border-soft);
+      background:rgba(249,250,251,0.95);
+    }
+    html[data-theme="dark"] .pill-col>div{
+      background:rgba(15,23,42,0.95);
+    }
+
+    .upload-zone{
+      margin-top:8px;
+      padding:10px 12px;
+      border-radius:var(--radius-lg);
+      border:1px dashed var(--border-soft);
+      background:rgba(249,250,251,0.96);
+      display:grid;
+      grid-template-columns:minmax(0,1.5fr) auto;
+      gap:10px;
+      align-items:center;
+    }
+    html[data-theme="dark"] .upload-zone{
+      background:rgba(15,23,42,0.96);
+    }
+    .upload-text{
+      font-size:0.8rem;
+      color:var(--fg-muted);
+    }
+    .upload-text strong{
+      color:var(--fg-main);
+    }
+    .upload-actions{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      justify-content:flex-end;
+      flex-wrap:wrap;
+    }
+    .file-name{
+      font-size:0.76rem;
+      color:var(--fg-muted);
+      max-width:180px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .btn{
+      border:none;
+      border-radius:999px;
+      font-size:0.8rem;
+      font-weight:500;
+      padding:7px 14px;
+      cursor:pointer;
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      transition:background var(--transition-fast),color var(--transition-fast),
+                 box-shadow var(--transition-fast),transform 0.12s ease-out,
+                 border-color var(--transition-fast);
+    }
+    .btn-primary{
+      background:linear-gradient(135deg,#2563eb,#22c55e);
+      color:#f9fafb;
+      box-shadow:0 16px 34px rgba(37,99,235,0.45);
+    }
+    .btn-primary:hover{
+      transform:translateY(-1px);
+    }
+    .btn-secondary{
+      background:transparent;
+      color:var(--fg-muted);
+      border:1px solid var(--border-soft);
+    }
+    .btn-secondary:hover{
+      transform:translateY(-1px);
+      color:var(--fg-main);
+    }
+
+    .tool-body{
+      margin-top:10px;
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+    }
+    .chips{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+      font-size:0.74rem;
+    }
+    .chip{
+      padding:3px 9px;
+      border-radius:999px;
+      border:1px solid var(--border-soft);
+      background:rgba(249,250,251,0.96);
+      color:var(--fg-muted);
+    }
+    html[data-theme="dark"] .chip{
+      background:rgba(15,23,42,0.96);
+    }
+
+    textarea,input[type="number"]{
+      width:100%;
+      border-radius:var(--radius-md);
+      border:1px solid var(--border-soft);
+      background:#ffffff;
+      color:var(--fg-main);
+      font-size:0.8rem;
+      padding:7px 9px;
+      resize:vertical;
+      min-height:76px;
+      outline:none;
+      transition:border-color var(--transition-fast),
+               box-shadow var(--transition-fast),
+               background var(--transition-fast);
+    }
+    html[data-theme="dark"] textarea,
+    html[data-theme="dark"] input[type="number"]{
+      background:#020617;
+      color:#e5e7eb;
+    }
+    textarea:focus,input[type="number"]:focus{
+      border-color:var(--accent);
+      box-shadow:0 0 0 1px rgba(37,99,235,0.35);
+    }
+
+    .numbers{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      font-size:0.74rem;
+      color:var(--fg-muted);
+      flex-wrap:wrap;
+    }
+    .numbers input{
+      max-width:76px;
+      min-height:auto;
+      padding:4px;
+      text-align:center;
+    }
+
+    .output{
+      border-radius:var(--radius-md);
+      border:1px solid var(--border-soft);
+      background:rgba(249,250,251,0.96);
+      font-size:0.78rem;
+      color:var(--fg-muted);
+      padding:7px 9px;
+      max-height:240px;
+      overflow:auto;
+    }
+    html[data-theme="dark"] .output{
+      background:rgba(15,23,42,0.96);
+    }
+    .output strong{
+      color:var(--fg-main);
+      font-weight:500;
+    }
+
+    .tabs{
+      margin-top:10px;
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
+      font-size:0.76rem;
+    }
+    .tab{
+      padding:5px 12px;
+      border-radius:999px;
+      border:1px solid var(--border-soft);
+      background:rgba(249,250,251,0.96);
+      color:var(--fg-muted);
+      cursor:pointer;
+      transition:background var(--transition-fast),
+               color var(--transition-fast),
+               border-color var(--transition-fast),
+               transform 0.12s ease-out;
+    }
+    html[data-theme="dark"] .tab{
+      background:rgba(15,23,42,0.96);
+    }
+    .tab.active{
+      background:var(--accent-soft);
+      color:var(--accent);
+      border-color:rgba(37,99,235,0.9);
+      transform:translateY(-1px);
+    }
+
+    .settings-row{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      font-size:0.78rem;
+      margin-top:4px;
+    }
+    .theme-toggle{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      padding:4px 10px;
+      border-radius:999px;
+      border:1px solid var(--border-soft);
+      background:rgba(249,250,251,0.96);
+      cursor:pointer;
+    }
+    html[data-theme="dark"] .theme-toggle{
+      background:rgba(15,23,42,0.96);
+    }
+    .theme-thumb{
+      width:20px;
+      height:20px;
+      border-radius:50%;
+      background:#020617;
+      color:#f9fafb;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:11px;
+    }
+    html[data-theme="dark"] .theme-thumb{
+      background:#f9fafb;
+      color:#020617;
+    }
+
+    .source-row{
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
+      font-size:0.75rem;
+    }
+    .source-option{
+      padding:3px 9px;
+      border-radius:999px;
+      border:1px solid var(--border-soft);
+      background:rgba(249,250,251,0.96);
+      cursor:pointer;
+    }
+    html[data-theme="dark"] .source-option{
+      background:rgba(15,23,42,0.96);
+    }
+    .source-option.active{
+      border-color:var(--accent);
+      color:var(--accent);
+      background:var(--accent-soft);
+    }
+
+    .spinner{
+      width:13px;
+      height:13px;
+      border-radius:999px;
+      border:2px solid rgba(148,163,184,0.25);
+      border-top-color:var(--accent);
+      animation:spin 0.7s linear infinite;
+    }
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    .hidden{display:none!important}
+    footer{
+      padding-top:10px;
+      font-size:0.72rem;
+      color:var(--fg-muted);
+      text-align:center;
+    }
+
+    @media(max-width:720px){
+      .upload-zone{
+        grid-template-columns:minmax(0,1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="bg-base"></div>
+<div class="bg-blur-circle"></div>
+
+<div class="shell">
+  <header class="header">
+    <div class="logo-row">
+      <div class="logo-icon">SA</div>
+      <div>
+        <div class="logo-text">Student Assistant</div>
+        <div class="logo-sub">یک فضای شیشه‌ای و آرام برای درس خواندن</div>
+      </div>
+    </div>
+    <nav class="nav">
+      <span class="nav-link active" data-view="home-view">خانه</span>
+      <span class="nav-link" data-view="summary-view">خلاصه‌سازی</span>
+      <span class="nav-link" data-view="qa-view">پرسش و چت</span>
+      <span class="nav-link" data-view="settings-view">تنظیمات</span>
+    </nav>
+    <div class="header-right">
+      <div id="serverStatus" class="status-pill">
+        <span class="status-dot"></span>
+        <span>بررسی اتصال...</span>
+      </div>
+      <button class="cta-btn" data-view="summary-view">شروع با اولین جزوه</button>
+    </div>
+  </header>
+
+  <!-- خانه -->
+  <section id="home-view" class="view view-active">
+    <div class="hero">
+      <div>
+        <h1 class="hero-title">
+          برنامه‌ی امروز تو، شفاف و رنگی جلوی چشم‌ات.
+        </h1>
+        <p class="hero-sub">
+          جزوه‌ها را این‌جا می‌آوری، خلاصه‌ی خوانا می‌گیری و هر وقت خواستی از خود PDF
+          یا از خلاصه سوال می‌پرسی؛ بدون شلوغی و حواس‌پرتی.
+        </p>
+        <div class="hero-actions">
+          <button class="btn btn-primary" data-view="summary-view">آپلود و خلاصه‌سازی</button>
+          <span class="hero-link" data-view="qa-view">یا مستقیم برو سراغ پرسش →</span>
+        </div>
+      </div>
+
+      <div class="hero-right">
+        <div class="hero-dashboard">
+          <div class="hero-dashboard-inner">
+            <div class="hero-header-row">
+              <div>
+                <div class="hero-header-title">برنامه‌ی امروز تو</div>
+                <div class="hero-header-sub">۳ فصل برای مرور · ۲ تمرین باقی‌مانده</div>
+              </div>
+              <div class="hero-header-pill">اقتصاد ۱ · ریاضی مهندسی · آمادگی کوییز</div>
+            </div>
+
+            <div class="hero-stats-row">
+              <div class="hero-stat-card">
+                <div class="hero-stat-label">اسلایدهای مرورشده</div>
+                <div class="hero-stat-value">۱۲</div>
+                <div class="hero-stat-meta">اسلاید امروز</div>
+              </div>
+              <div class="hero-stat-card">
+                <div class="hero-stat-label">سوال‌های پاسخ‌داده</div>
+                <div class="hero-stat-value">۴</div>
+                <div class="hero-stat-meta">آخرین جلسه</div>
+              </div>
+              <div class="hero-stat-card">
+                <div class="hero-stat-label">میانگین طول خلاصه</div>
+                <div class="hero-stat-value">۸ دقیقه</div>
+                <div class="hero-stat-meta">به‌ازای هر فصل</div>
+              </div>
+              <div class="hero-stat-card">
+                <div class="hero-stat-label">تمرکز حفظ‌شده</div>
+                <div class="hero-stat-value">۹۰٪</div>
+                <div class="hero-stat-meta">برآورد هوشمند</div>
+              </div>
+            </div>
+
+            <div class="hero-icons-grid">
+              <div class="big-glass-icon" data-view="summary-view">
+                <div class="big-icon-header">
+                  <div class="big-icon-badge folder">📁</div>
+                  <div>
+                    <div class="big-icon-title">فایل‌ها</div>
+                    <div class="big-icon-sub">همه‌ی جزوه‌ها و اسلایدها در یک جا.</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="big-glass-icon" data-view="summary-view">
+                <div class="big-icon-header">
+                  <div class="big-icon-badge notes">📝</div>
+                  <div>
+                    <div class="big-icon-title">خلاصه‌ها</div>
+                    <div class="big-icon-sub">مرور سریع قبل از امتحان.</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="big-glass-icon" data-view="qa-view">
+                <div class="big-icon-header">
+                  <div class="big-icon-badge chat">💬</div>
+                  <div>
+                    <div class="big-icon-title">پرسش</div>
+                    <div class="big-icon-sub">سوال از PDF یا خلاصه‌ی تولیدشده.</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- کارت ماشین‌حساب با باز کردن پنل -->
+              <div class="big-glass-icon" id="calcToggle">
+                <div class="big-icon-header">
+                  <div class="big-icon-badge calc">🧮</div>
+                  <div>
+                    <div class="big-icon-title">ماشین‌حساب ترم</div>
+                    <div class="big-icon-sub">چهار عمل اصلی روی یک کارت شیشه‌ای.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- پنل ماشین‌حساب شیشه‌ای -->
+            <div id="calcPanel" class="calc-panel hidden">
+              <div class="calc-header-row">
+                <span>ماشین‌حساب ساده</span>
+                <button id="calcClose" class="calc-close-btn">×</button>
+              </div>
+              <div class="calc-display" id="calcDisplay">0</div>
+              <div class="calc-grid">
+                <button data-key="C" class="calc-key calc-key-func">AC</button>
+                <button data-key="⌫" class="calc-key calc-key-func">⌫</button>
+                <button data-key="%" class="calc-key calc-key-op">%</button>
+                <button data-key="/" class="calc-key calc-key-op">÷</button>
+
+                <button data-key="7" class="calc-key">7</button>
+                <button data-key="8" class="calc-key">8</button>
+                <button data-key="9" class="calc-key">9</button>
+                <button data-key="*" class="calc-key calc-key-op">×</button>
+
+                <button data-key="4" class="calc-key">4</button>
+                <button data-key="5" class="calc-key">5</button>
+                <button data-key="6" class="calc-key">6</button>
+                <button data-key="-" class="calc-key calc-key-op">−</button>
+
+                <button data-key="1" class="calc-key">1</button>
+                <button data-key="2" class="calc-key">2</button>
+                <button data-key="3" class="calc-key">3</button>
+                <button data-key="+" class="calc-key calc-key-op">+</button>
+
+                <button data-key="0" class="calc-key calc-key-zero">0</button>
+                <button data-key="." class="calc-key">.</button>
+                <button data-key="=" class="calc-key calc-key-eq">=</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- خلاصه‌سازی -->
+  <section id="summary-view" class="view">
+    <div class="panel">
+      <div class="section-label"><span class="section-dot"></span><span>خلاصه‌سازی سند</span></div>
+      <div class="inline-row">
+        <div>
+          <div class="section-title">آپلود فایل و تولید خلاصه</div>
+          <p class="section-sub">فایل را یک‌بار می‌فرستی و هر بار که لازم شد خلاصه‌ی تازه می‌گیری.</p>
+        </div>
+        <div class="pill-col">
+          <div>فرمت‌ها: PDF · DOCX · TXT · PNG · JPG</div>
+          <div>حداکثر حجم: ۱۰ مگابایت</div>
+        </div>
+      </div>
+
+      <div class="upload-zone">
+        <div>
+          <p class="upload-text">
+            فایل را انتخاب کن. <strong>بدون آپلود، خلاصه‌سازی فعال نمی‌شود.</strong>
+          </p>
+          <input type="file" id="fileInput" class="hidden" />
+        </div>
+        <div class="upload-actions">
+          <span id="fileName" class="file-name">فایلی انتخاب نشده است</span>
+          <button class="btn btn-secondary" id="chooseFileBtn">انتخاب فایل</button>
+          <button class="btn btn-primary" id="uploadBtn">آپلود</button>
+        </div>
+      </div>
+
+      <div class="tool-body">
+        <div class="inline-row">
+          <div class="chips">
+            <span class="chip">خلاصه‌ی کل سند</span>
+            <span class="chip">مناسب مرور قبل از امتحان</span>
+          </div>
+          <div class="numbers">
+            <span>حداکثر طول</span>
+            <input type="number" id="maxLength" value="512" min="50" max="1024" />
+            <span>حداقل</span>
+            <input type="number" id="minLength" value="50" min="10" max="500" />
+          </div>
+        </div>
+
+        <div class="inline-row">
+          <span style="font-size:0.78rem;color:var(--fg-muted);">
+            بعد از آپلود، روی «خلاصه‌سازی فایل» بزن تا نتیجه در پایین نمایش داده شود.
+          </span>
+          <button class="btn btn-primary" id="summarizeBtn">
+            <span id="summarizeBtnLabel">خلاصه‌سازی فایل</span>
+            <span id="summarizeSpinner" class="spinner hidden"></span>
+          </button>
+        </div>
+
+        <div class="output" id="summaryOutput">
+          <strong>خلاصه اینجا نمایش داده می‌شود.</strong><br />
+          ابتدا یک فایل آپلود کن و سپس دکمه خلاصه‌سازی را بزن.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- پرسش و چت -->
+  <section id="qa-view" class="view">
+    <div class="panel">
+      <div class="section-label"><span class="section-dot"></span><span>پرسش و چت</span></div>
+      <div class="inline-row">
+        <div>
+          <div class="section-title">پرسش از PDF یا از خلاصه</div>
+          <p class="section-sub">منبع پاسخ را انتخاب کن؛ متن کامل یا خلاصه‌ی تولیدشده.</p>
+        </div>
+      </div>
+
+      <div class="tool-body">
+        <div class="tabs">
+          <div class="tab active" data-tab="qa-tab">پرسش متنی</div>
+          <div class="tab" data-tab="chat-tab">چت آزاد</div>
+        </div>
+
+        <div id="qa-tab">
+          <div style="margin-top:8px;">
+            <div style="font-size:0.76rem;margin-bottom:4px;">منبع پاسخ:</div>
+            <div class="source-row">
+              <button class="source-option active" data-source="pdf">متن کامل PDF</button>
+              <button class="source-option" data-source="summary">خلاصه تولیدشده</button>
+            </div>
+          </div>
+
+          <textarea id="questionInput" placeholder="مثال: نکات مهم فصل دوم اقتصاد را در چند جمله بگو."></textarea>
+
+          <div class="inline-row">
+            <span style="font-size:0.76rem;color:var(--fg-muted);">
+              از آخرین فایل و آخرین خلاصه‌ی ذخیره‌شده استفاده می‌شود.
+            </span>
+            <button class="btn btn-primary" id="askBtn">
+              <span id="askBtnLabel">پرسیدن سوال</span>
+              <span id="askSpinner" class="spinner hidden"></span>
+            </button>
+          </div>
+
+          <div class="output" id="qaOutput">
+            <strong>پاسخ اینجا نمایش داده می‌شود.</strong>
+          </div>
+        </div>
+
+        <div id="chat-tab" class="hidden">
+          <textarea id="chatInput" placeholder="هر سوال یا درخواستی درباره درس بنویس... (Enter برای ارسال)"></textarea>
+
+          <div class="inline-row">
+            <span style="font-size:0.76rem;color:var(--fg-muted);">
+              شناسه مکالمه روی سرور نگه‌داری می‌شود تا روند گفتگو قطع نشود.
+            </span>
+            <button class="btn btn-primary" id="chatBtn">
+              <span id="chatBtnLabel">ارسال پیام</span>
+              <span id="chatSpinner" class="spinner hidden"></span>
+            </button>
+          </div>
+
+          <div class="output" id="chatOutput">
+            <strong>تاریخچه چت</strong>
+            <div id="chatHistory" style="margin-top:4px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- تنظیمات -->
+  <section id="settings-view" class="view">
+    <div class="panel">
+      <div class="section-label"><span class="section-dot"></span><span>تنظیمات</span></div>
+      <div class="tool-body">
+        <div class="settings-row">
+          <strong>ظاهر سامانه</strong>
+          <button class="theme-toggle" id="themeToggle">
+            <span>تغییر حالت تیره / روشن</span>
+            <span class="theme-thumb" id="themeThumb">☼</span>
+          </button>
+          <span style="font-size:0.76rem;color:var(--fg-muted);">
+            حالت انتخابی در حافظه مرورگر ذخیره می‌شود و بین جلسات حفظ می‌شود.
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>این رابط کمک می‌کند تمرکزت روی درس بماند، نه روی مدیریت فایل‌ها.</footer>
+</div>
+
+<script>
+  /* تم */
+  const htmlEl=document.documentElement;
+  const themeToggle=document.getElementById("themeToggle");
+  const themeThumb=document.getElementById("themeThumb");
+  function applyTheme(theme){
+    htmlEl.setAttribute("data-theme",theme);
+    if(themeThumb) themeThumb.textContent=theme==="dark"?"☾":"☼";
+    localStorage.setItem("theme",theme);
+  }
+  (function initTheme(){
+    const saved=localStorage.getItem("theme");
+    if(saved==="dark"||saved==="light") applyTheme(saved);
+    else if(window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) applyTheme("dark");
+    else applyTheme("light");
+  })();
+  if(themeToggle){
+    themeToggle.addEventListener("click",()=>{
+      const cur=htmlEl.getAttribute("data-theme")==="dark"?"dark":"light";
+      applyTheme(cur==="dark"?"light":"dark");
+    });
+  }
+
+  /* ویوها */
+  const views={
+    "home-view":document.getElementById("home-view"),
+    "summary-view":document.getElementById("summary-view"),
+    "qa-view":document.getElementById("qa-view"),
+    "settings-view":document.getElementById("settings-view")
+  };
+  const navLinks=document.querySelectorAll(".nav-link");
+  const viewTriggers=document.querySelectorAll("[data-view]");
+  let currentView="home-view";
+
+  function switchView(target){
+    if(target===currentView || !views[target]) return;
+    const oldView=views[currentView];
+    const newView=views[target];
+    if(oldView){
+      oldView.style.animation="viewOut 0.35s ease forwards";
+      setTimeout(()=>{oldView.classList.remove("view-active")},300);
+    }
+    newView.style.animation="";
+    newView.classList.add("view-active");
+    navLinks.forEach(l=>l.classList.toggle("active",l.dataset.view===target));
+    currentView=target;
+    window.scrollTo({top:0,behavior:"smooth"});
+  }
+  viewTriggers.forEach(el=>{
+    el.addEventListener("click",()=>{
+      const target=el.dataset.view;
+      if(target) switchView(target);
+    });
+  });
+
+  /* health */
+  const serverStatus=document.getElementById("serverStatus");
+  async function pollHealth(){
+    try{
+      const res=await fetch("/health");
+      if(!res.ok) throw new Error();
+      const data=await res.json();
+      serverStatus.classList.remove("status-offline");
+      serverStatus.innerHTML='<span class="status-dot"></span><span>سرور آنلاین · '+data.status+'</span>';
+    }catch{
+      serverStatus.classList.add("status-offline");
+      serverStatus.innerHTML='<span class="status-dot"></span><span>اتصال به سرور برقرار نیست</span>';
+    }
+  }
+  pollHealth();
+  setInterval(pollHealth,10000);
+
+  /* فایل و آپلود */
+  let currentFileId=null;
+  let currentConversationId=null;
+  let selectedFile=null;
+
+  const fileInput=document.getElementById("fileInput");
+  const chooseFileBtn=document.getElementById("chooseFileBtn");
+  const uploadBtn=document.getElementById("uploadBtn");
+  const fileNameSpan=document.getElementById("fileName");
+  const summaryOutput=document.getElementById("summaryOutput");
+
+  chooseFileBtn.addEventListener("click",()=>fileInput.click());
+  fileInput.addEventListener("change",()=>{
+    if(fileInput.files && fileInput.files[0]){
+      selectedFile=fileInput.files[0];
+      fileNameSpan.textContent=selectedFile.name;
+    }else{
+      selectedFile=null;
+      fileNameSpan.textContent="فایلی انتخاب نشده است";
+    }
+  });
+
+  uploadBtn.addEventListener("click",async ()=>{
+    if(!selectedFile){alert("لطفاً ابتدا یک فایل انتخاب کن.");return;}
+    uploadBtn.disabled=true;
+    uploadBtn.textContent="در حال آپلود...";
+    try{
+      const form=new FormData();
+      form.append("file",selectedFile);
+      const res=await fetch("/api/upload",{method:"POST",body:form});
+      if(!res.ok){
+        const err=await res.json().catch(()=>({}));
+        throw new Error(err.detail || "خطا در آپلود");
+      }
+      const data=await res.json();
+      currentFileId=data.file_id;
+      uploadBtn.textContent="آپلود شد ✓";
+      setTimeout(()=>uploadBtn.textContent="آپلود",1200);
+      summaryOutput.innerHTML="<strong>فایل با موفقیت آپلود شد.</strong><br/>اکنون می‌توانی خلاصه‌سازی انجام دهی.";
+    }catch(e){
+      alert(e.message);
+      uploadBtn.textContent="آپلود";
+    }finally{
+      uploadBtn.disabled=false;
+    }
+  });
+
+  /* خلاصه‌سازی */
+  const summarizeBtn=document.getElementById("summarizeBtn");
+  const summarizeBtnLabel=document.getElementById("summarizeBtnLabel");
+  const summarizeSpinner=document.getElementById("summarizeSpinner");
+  const maxLengthInput=document.getElementById("maxLength");
+  const minLengthInput=document.getElementById("minLength");
+
+  summarizeBtn.addEventListener("click",async ()=>{
+    if(!currentFileId){alert("ابتدا یک فایل آپلود کن.");return;}
+    const maxLength=parseInt(maxLengthInput.value||"512",10);
+    const minLength=parseInt(minLengthInput.value||"50",10);
+    summarizeBtn.disabled=true;
+    summarizeBtnLabel.textContent="در حال خلاصه‌سازی...";
+    summarizeSpinner.classList.remove("hidden");
+    summaryOutput.innerHTML="<strong>در حال پردازش...</strong>";
+    try{
+      const res=await fetch("/api/summarize",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({file_id:currentFileId,max_length:maxLength,min_length:minLength})
+      });
+      if(!res.ok){
+        const err=await res.json().catch(()=>({}));
+        throw new Error(err.detail || "خطا در خلاصه‌سازی");
+      }
+      const data=await res.json();
+      summaryOutput.innerHTML=
+        `<strong>خلاصه:</strong><br/>${data.summary}<br/><br/>`+
+        `<span style="font-size:0.7rem;opacity:.9;">طول متن: ${data.original_length} · طول خلاصه: ${data.summary_length} · زمان: ${data.processing_time.toFixed(2)} ثانیه</span>`;
+    }catch(e){
+      summaryOutput.innerHTML=`<span style="color:#e11d48;"><strong>خطا:</strong> ${e.message}</span>`;
+    }finally{
+      summarizeBtn.disabled=false;
+      summarizeBtnLabel.textContent="خلاصه‌سازی فایل";
+      summarizeSpinner.classList.add("hidden");
+    }
+  });
+
+  /* تب‌های QA / Chat */
+  const tabs=document.querySelectorAll(".tab");
+  const qaTab=document.getElementById("qa-tab");
+  const chatTab=document.getElementById("chat-tab");
+
+  tabs.forEach(tab=>{
+    tab.addEventListener("click",()=>{
+      tabs.forEach(t=>t.classList.remove("active"));
+      tab.classList.add("active");
+      if(tab.dataset.tab==="qa-tab"){
+        qaTab.classList.remove("hidden");
+        chatTab.classList.add("hidden");
+      }else{
+        chatTab.classList.remove("hidden");
+        qaTab.classList.add("hidden");
+      }
+    });
+  });
+
+  /* منبع سوال */
+  let questionSource="pdf";
+  const sourceButtons=document.querySelectorAll(".source-option");
+  sourceButtons.forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      sourceButtons.forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+      questionSource=btn.dataset.source || "pdf";
+    });
+  });
+
+  /* پرسش */
+  const askBtn=document.getElementById("askBtn");
+  const askBtnLabel=document.getElementById("askBtnLabel");
+  const askSpinner=document.getElementById("askSpinner");
+  const questionInput=document.getElementById("questionInput");
+  const qaOutput=document.getElementById("qaOutput");
+
+  askBtn.addEventListener("click",async ()=>{
+    const q=questionInput.value.trim();
+    if(!currentFileId){alert("ابتدا یک فایل آپلود کن.");return;}
+    if(!q){alert("سوال را بنویس.");return;}
+    askBtn.disabled=true;
+    askBtnLabel.textContent="در حال دریافت پاسخ...";
+    askSpinner.classList.remove("hidden");
+    qaOutput.innerHTML="<strong>در حال پردازش...</strong>";
+    try{
+      const res=await fetch("/api/question",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({file_id:currentFileId,question:q,source:questionSource})
+      });
+      if(!res.ok){
+        const err=await res.json().catch(()=>({}));
+        throw new Error(err.detail || "خطا در پاسخ به سوال");
+      }
+      const data=await res.json();
+      qaOutput.innerHTML=
+        `<strong>سوال (${questionSource==="pdf"?"از PDF":"از خلاصه"}):</strong> ${data.question}<br/><br/>`+
+        `<strong>پاسخ:</strong> ${data.answer}<br/><br/>`+
+        `<span style="font-size:0.7rem;opacity:.9;">زمان پردازش: ${data.processing_time.toFixed(2)} ثانیه</span>`;
+    }catch(e){
+      qaOutput.innerHTML=`<span style="color:#e11d48;"><strong>خطا:</strong> ${e.message}</span>`;
+    }finally{
+      askBtn.disabled=false;
+      askBtnLabel.textContent="پرسیدن سوال";
+      askSpinner.classList.add("hidden");
+    }
+  });
+
+  /* چت */
+  const chatInput=document.getElementById("chatInput");
+  const chatBtn=document.getElementById("chatBtn");
+  const chatBtnLabel=document.getElementById("chatBtnLabel");
+  const chatSpinner=document.getElementById("chatSpinner");
+  const chatHistory=document.getElementById("chatHistory");
+
+  function appendChat(role,content){
+    const div=document.createElement("div");
+    div.style.marginBottom="4px";
+    div.style.lineHeight="1.6";
+    div.innerHTML=
+      `<span style="font-size:0.72rem;opacity:.75;">${role==="user"?"شما":"دستیار"}:</span> <span>${content}</span>`;
+    chatHistory.appendChild(div);
+    chatHistory.scrollTop=chatHistory.scrollHeight;
+  }
+
+  chatBtn.addEventListener("click",async ()=>{
+    const msg=chatInput.value.trim();
+    if(!msg)return;
+    chatInput.value="";
+    appendChat("user",msg);
+    chatBtn.disabled=true;
+    chatBtnLabel.textContent="در حال پاسخ...";
+    chatSpinner.classList.remove("hidden");
+    try{
+      const payload={message:msg,conversation_id:currentConversationId,context_file_id:currentFileId||null};
+      const res=await fetch("/api/chat",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify(payload)
+      });
+      if(!res.ok){
+        const err=await res.json().catch(()=>({}));
+        throw new Error(err.detail || "خطا در چت");
+      }
+      const data=await res.json();
+      currentConversationId=data.conversation_id;
+      appendChat("assistant",data.response);
+    }catch(e){
+      appendChat("assistant","<span style='color:#e11d48;'>خطا: "+e.message+"</span>");
+    }finally{
+      chatBtn.disabled=false;
+      chatBtnLabel.textContent="ارسال پیام";
+      chatSpinner.classList.add("hidden");
+    }
+  });
+
+  chatInput.addEventListener("keydown",e=>{
+    if(e.key==="Enter" && !e.shiftKey){
+      e.preventDefault();
+      chatBtn.click();
+    }
+  });
+
+  /* منطق ماشین‌حساب – چهار عمل اصلی [web:177][web:191] */
+  const calcToggle=document.getElementById("calcToggle");
+  const calcPanel=document.getElementById("calcPanel");
+  const calcClose=document.getElementById("calcClose");
+  const calcDisplay=document.getElementById("calcDisplay");
+  const calcKeys=document.querySelectorAll(".calc-key");
+
+  let calcCurrent="0";
+  let calcOperator=null;
+  let calcPrev=null;
+  let calcJustEvaluated=false;
+
+  function updateDisplay(){
+    calcDisplay.textContent=calcCurrent;
+  }
+  function clearCalc(){
+    calcCurrent="0";
+    calcPrev=null;
+    calcOperator=null;
+    calcJustEvaluated=false;
+    updateDisplay();
+  }
+  function applyOperator(op,a,b){
+    a=parseFloat(a);b=parseFloat(b);
+    if(isNaN(a) || isNaN(b)) return b;
+    switch(op){
+      case "+":return a+b;
+      case "-":return a-b;
+      case "*":return a*b;
+      case "/":return b===0?"خطا":a/b;
+      case "%":return a%b;
+      default:return b;
+    }
+  }
+
+  if(calcToggle){
+    calcToggle.addEventListener("click",()=>{
+      calcPanel.classList.toggle("hidden");
+    });
+  }
+  if(calcClose){
+    calcClose.addEventListener("click",()=>{
+      calcPanel.classList.add("hidden");
+    });
+  }
+
+  calcKeys.forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      const key=btn.dataset.key;
+      if(!key) return;
+      if(key==="C"){
+        clearCalc();
+        return;
+      }
+      if(key==="⌫"){
+        if(calcJustEvaluated){clearCalc();return;}
+        if(calcCurrent.length>1){
+          calcCurrent=calcCurrent.slice(0,-1);
+        }else{
+          calcCurrent="0";
+        }
+        updateDisplay();
+        return;
+      }
+      if(key==="="){
+        if(calcOperator && calcPrev!==null){
+          const result=applyOperator(calcOperator,calcPrev,calcCurrent);
+          calcCurrent=String(result);
+          calcPrev=null;
+          calcOperator=null;
+          calcJustEvaluated=true;
+          updateDisplay();
+        }
+        return;
+      }
+      if(["+","-","*","/","%"].includes(key)){
+        if(calcOperator && calcPrev!==null && !calcJustEvaluated){
+          const result=applyOperator(calcOperator,calcPrev,calcCurrent);
+          calcCurrent=String(result);
+          updateDisplay();
+        }
+        calcPrev=calcCurrent;
+        calcOperator=key;
+        calcJustEvaluated=false;
+        calcCurrent="0";
+        return;
+      }
+      if(key==="."){
+        if(calcJustEvaluated){
+          calcCurrent="0.";
+          calcJustEvaluated=false;
+          updateDisplay();
+          return;
+        }
+        if(!calcCurrent.includes(".")){
+          calcCurrent+= ".";
+          updateDisplay();
+        }
+        return;
+      }
+      // رقم
+      if(calcJustEvaluated){
+        calcCurrent=key;
+        calcJustEvaluated=false;
+      }else{
+        calcCurrent=calcCurrent==="0"?key:calcCurrent+key;
+      }
+      updateDisplay();
+    });
+  });
+</script>
+</body>
+</html>
